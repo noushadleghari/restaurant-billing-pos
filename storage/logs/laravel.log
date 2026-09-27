@@ -2382,3 +2382,18 @@ Stack trace:
 #47 /home/noshad/Desktop/Laravel-projects/pos-system/public/index.php(18): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
 #48 {main}
 "} 
+[2026-09-27 17:05:37] local.ERROR: There are no commands defined in the "views" namespace.
+
+Did you mean this?
+    view {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"views\" namespace.
+
+Did you mean this?
+    view at /home/noshad/Desktop/Laravel-projects/pos-system/vendor/symfony/console/Application.php:716)
+[stacktrace]
+#0 /home/noshad/Desktop/Laravel-projects/pos-system/vendor/symfony/console/Application.php(769): Symfony\\Component\\Console\\Application->findNamespace('views')
+#1 /home/noshad/Desktop/Laravel-projects/pos-system/vendor/symfony/console/Application.php(321): Symfony\\Component\\Console\\Application->find('views:clear')
+#2 /home/noshad/Desktop/Laravel-projects/pos-system/vendor/symfony/console/Application.php(218): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 /home/noshad/Desktop/Laravel-projects/pos-system/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 /home/noshad/Desktop/Laravel-projects/pos-system/artisan(12): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#5 {main}
+"} 

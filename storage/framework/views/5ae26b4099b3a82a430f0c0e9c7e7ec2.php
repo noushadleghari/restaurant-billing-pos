@@ -15,11 +15,24 @@
 <body class="h-full">
     <div class="min-h-screen flex">
         
-<aside class="hidden lg:flex w-[220px] h-screen shrink-0 flex-col bg-white border-r border-gray-200">            <div class="h-16 flex items-center gap-2 px-5 border-b border-gray-100">
-                <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold">☕
+        <aside class="hidden lg:flex w-[220px] h-screen shrink-0 flex-col bg-white border-r border-gray-200">
+            <div class="h-16 flex items-center gap-2 px-5 border-b border-gray-100">
+
+                <?php
+                    $logo = \App\Models\Setting::get('logo');
+                ?>
+
+                <div class="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center">
+                    <?php if($logo): ?>
+                        <img src="<?php echo e(asset('storage/' . $logo)); ?>" alt="Logo" class="w-full h-full object-contain">
+                    <?php else: ?>
+                        <span>☕</span>
+                    <?php endif; ?>
                 </div>
-                <span
-                    class="font-bold text-gray-800 truncate"><?php echo e(\App\Models\Setting::get('business_name', 'Cafe POS')); ?></span>
+
+                <span class="font-bold text-gray-800 truncate">
+
+                    <?php echo e(\App\Models\Setting::get('business_name', 'Cafe POS')); ?></span>
             </div>
             <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                 <a href="<?php echo e(route('dashboard')); ?>"
@@ -62,7 +75,7 @@
                         <span>👥</span> User Management
                     </a>
                 <?php endif; ?>
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('viewAny',App\Models\Setting::class)): ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('viewAny', App\Models\Setting::class)): ?>
                     <a href="<?php echo e(route('settings.index')); ?>"
                         class="sidebar-link <?php echo e(request()->routeIs('settings.*') ? 'active' : ''); ?>">
                         <span>⚙️</span> Settings
@@ -115,13 +128,14 @@
                     👥 User Management
                 </a>
             <?php endif; ?>
-            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('viewAny',App\Models\Setting::class)): ?>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('viewAny', App\Models\Setting::class)): ?>
                 <a href="<?php echo e(route('settings.index')); ?>" class="sidebar-link">⚙️ Settings</a>
             <?php endif; ?>
         </div>
 
         
-<main class="flex-1 min-w-0 h-screen overflow-y-auto pt-14 lg:pt-0">            <?php if(session('success')): ?>
+        <main class="flex-1 min-w-0 h-screen overflow-y-auto pt-14 lg:pt-0">
+            <?php if(session('success')): ?>
                 <div data-flash
                     class="fixed top-5 right-5 z-[100] bg-brand-600 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
                     <span>✅ <?php echo e(session('success')); ?></span>

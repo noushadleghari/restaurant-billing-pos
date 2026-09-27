@@ -7,3 +7,5 @@ framework_version: "10"
 secured: true
 services:
   - mysql
+workers:
+  - vite
