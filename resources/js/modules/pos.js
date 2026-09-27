@@ -59,8 +59,17 @@ export function initPOS($) {
         $('#sum-total').text(fmt(t.total));
         $('#cart-count-badge').text(cart.reduce((s, i) => s + i.quantity, 0));
 
-        const disabled = cart.length === 0;
-        $('#save-order-btn, #checkout-btn').prop('disabled', disabled);
+        const cartEmpty = cart.length === 0;
+        const isDineIn = $('#order-type-select').val() === 'dine_in';
+        const hasTable = !!$('#table-select').val();
+
+        $('#checkout-btn').prop('disabled', cartEmpty);
+
+        $('#save-order-btn').prop(
+            'disabled',
+            cartEmpty || !isDineIn || !hasTable
+        );
+
     }
 
     function addToCart(product) {
@@ -159,8 +168,13 @@ export function initPOS($) {
     $('#order-type-select').on('change', function () {
         const isDineIn = $(this).val() === 'dine_in';
         $('#table-select-wrapper').toggleClass('hidden', !isDineIn);
-    });
+        $('#save-order-btn').toggleClass('hidden', !isDineIn);
+            renderCart();
+        });
 
+        $('#table-select').on('change', function () {
+            renderCart();
+        });
     // --- Customer search (AJAX autocomplete) --------------------------------
     let custTimer;
     $('#customer-search-input').on('input', function () {
@@ -207,19 +221,37 @@ export function initPOS($) {
 
     $('#save-order-btn').on('click', function () {
         if (!cart.length) return;
+
+        if (
+            $('#order-type-select').val() !== 'dine_in' ||
+            !$('#table-select').val()
+        ) {
+            toast($, 'Please select a table before saving the order.', 'error');
+            return;
+        }
+
         const payload = collectPayload();
         const $btn = $(this).prop('disabled', true).text('Saving...');
 
-        $.ajax({ url: window.routes.orderSave, method: 'POST', data: payload, dataType: 'json' })
-            .done((res) => {
-                currentOrderId = res.order.id;
-                toast($, 'Order saved. You can bill this table anytime.');
-                setTimeout(() => window.location.href = window.routes.tables, 600);
-            })
-            .fail((xhr) => {
-                toast($, xhr.responseJSON?.message || 'Could not save order. Check the items.', 'error');
-            })
-            .always(() => $btn.prop('disabled', false).text('Save Order'));
+        $.ajax({
+            url: window.routes.orderSave,
+            method: 'POST',
+            data: payload,
+            dataType: 'json'
+        })
+        .done((res) => {
+            currentOrderId = res.order.id;
+            toast($, 'Order saved. You can bill this table anytime.');
+            setTimeout(() => window.location.href = window.routes.tables, 600);
+        })
+        .fail((xhr) => {
+            toast(
+                $,
+                xhr.responseJSON?.message || 'Could not save order. Check the items.',
+                'error'
+            );
+        })
+        .always(() => $btn.prop('disabled', false).text('Save Order'));
     });
 
     // --- Checkout modal ------------------------------------------------------
