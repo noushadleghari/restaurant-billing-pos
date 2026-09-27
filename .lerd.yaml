@@ -1,0 +1,9 @@
+domains:
+  - pos-system-2
+php_version: "8.5"
+node_version: "22"
+framework: laravel
+framework_version: "10"
+secured: true
+services:
+  - mysql
