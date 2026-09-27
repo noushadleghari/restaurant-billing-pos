@@ -130,6 +130,12 @@
             @can('viewAny', App\Models\Setting::class)
                 <a href="{{ route('settings.index') }}" class="sidebar-link">⚙️ Settings</a>
             @endcan
+             <form method="POST" action="{{ route('logout') }}" class="mt-1">
+                    @csrf
+                    <button class="sidebar-link text-red-500 hover:bg-red-50 hover:text-red-600">
+                        <span>🚪</span> Logout
+                    </button>
+                </form>
         </div>
 
         {{-- Main content --}}

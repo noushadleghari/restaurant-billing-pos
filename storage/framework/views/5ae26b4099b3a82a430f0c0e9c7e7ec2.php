@@ -131,6 +131,12 @@
             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('viewAny', App\Models\Setting::class)): ?>
                 <a href="<?php echo e(route('settings.index')); ?>" class="sidebar-link">⚙️ Settings</a>
             <?php endif; ?>
+             <form method="POST" action="<?php echo e(route('logout')); ?>" class="mt-1">
+                    <?php echo csrf_field(); ?>
+                    <button class="sidebar-link text-red-500 hover:bg-red-50 hover:text-red-600">
+                        <span>🚪</span> Logout
+                    </button>
+                </form>
         </div>
 
         

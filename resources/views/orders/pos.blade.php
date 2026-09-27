@@ -2,8 +2,8 @@
 @section('title', 'Billing')
 
 @section('content')
-    <div id="pos-screen" class="h-screen lg:h-screen flex flex-col lg:flex-row pt-14 lg:pt-0 -mt-14 lg:mt-0">
-
+<div id="pos-screen"
+    class="min-h-screen lg:h-screen flex flex-col lg:flex-row pt-14 lg:pt-0 -mt-14 lg:mt-0">
         {{-- LEFT: products --}}
         <div class="flex-1 flex flex-col min-w-0 p-4 lg:p-6 overflow-hidden">
             <div class="flex items-center justify-between gap-3 mb-4">
