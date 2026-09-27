@@ -258,9 +258,10 @@ export function initPOS($) {
                 dataType: 'json',
             });
 
-            toast($, 'Payment received. Opening receipt...');
-            window.open(checkoutRes.receipt_url, '_blank');
-            setTimeout(() => window.location.href = window.routes.tables, 700);
+            // toast($, 'Payment received. Opening receipt...');
+            // window.open(checkoutRes.receipt_url);
+            // setTimeout(() => window.location.href = window.routes.tables, 700);
+            window.location.href = checkoutRes.receipt_url;
         } catch (xhr) {
             toast($, xhr.responseJSON?.message || 'Checkout failed. Please try again.', 'error');
         } finally {
