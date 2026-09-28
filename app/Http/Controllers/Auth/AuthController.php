@@ -28,15 +28,16 @@ class AuthController extends Controller
 
             if (!Auth::user()->is_active) {
                 Auth::logout();
-                return back()->withErrors(['email' => 'Your account has been disabled. Contact admin.']);
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->back()->with('error', 'Your account has been disabled. Contact admin.');
             }
 
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->withErrors([
-            'email' => 'These credentials do not match our records.',
-        ])->onlyInput('email');
+        return redirect()->back()->with('error', 'Invalid Credentials!')->onlyInput('email');
     }
 
     public function logout(Request $request)

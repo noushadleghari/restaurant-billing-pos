@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,43 +8,59 @@
     <title>Login · {{ \App\Models\Setting::get('business_name', 'Cafe POS') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="bg-gradient-to-br from-brand-50 via-white to-brand-50 min-h-screen flex items-center justify-center p-4">
 
     @if (session('success'))
-        <div data-flash class="fixed top-5 right-5 z-[100] bg-brand-600 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg">
+        <div data-flash
+            class="fixed top-5 right-5 z-[100] bg-brand-600 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg">
             {{ session('success') }}
         </div>
     @endif
 
     <div class="w-full max-w-sm">
         <div class="text-center mb-8">
-            <div class="w-16 h-16 rounded-2xl bg-brand-600 text-white flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg shadow-brand-200">☕</div>
+            <div
+                class="w-16 h-16 rounded-2xl bg-brand-600 text-white flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg shadow-brand-200">
+                ☕</div>
             <h1 class="text-xl font-bold text-gray-800">{{ \App\Models\Setting::get('business_name', 'Cafe POS') }}</h1>
             <p class="text-sm text-gray-400">Sign in to start billing</p>
         </div>
 
         <div class="card p-6">
+            @if (session()->has('error'))
+            <!-- Error -->
+            <div class="my-3 bg-red-50 text-sm p-3 rounded-md flex gap-3 border border-red-300 flex-col sm:items-center sm:flex-row dark:bg-red-900/20 dark:border-red-800/40"
+            role="alert">
+          
+            <p class="text-red-900 dark:text-red-400">
+                {{session()->get('error')}}
+            </p>
+        </div>
+        @endif
             <form id="login-form" method="POST" action="{{ route('login.store') }}" novalidate>
                 @csrf
 
                 <div class="mb-4" data-field>
                     <label class="label">Email</label>
                     <input type="email" name="email" value="{{ old('email') }}"
-                           class="input @error('email') input-error @enderror"
-                           data-validate="required|email" placeholder="you@cafe.com" autofocus>
-                    <p data-error class="error-text {{ $errors->has('email') ? '' : 'hidden' }}">{{ $errors->first('email') }}</p>
+                        class="input @error('email') input-error @enderror" data-validate="required|email"
+                        placeholder="you@cafe.com">
+                    <p data-error class="error-text {{ $errors->has('email') ? '' : 'hidden' }}">
+                        {{ $errors->first('email') }}</p>
                 </div>
 
                 <div class="mb-2" data-field>
                     <label class="label">Password</label>
-                    <input type="password" name="password"
-                           class="input @error('password') input-error @enderror"
-                           data-validate="required" placeholder="••••••••">
-                    <p data-error class="error-text {{ $errors->has('password') ? '' : 'hidden' }}">{{ $errors->first('password') }}</p>
+                    <input type="password" name="password" class="input @error('password') input-error @enderror"
+                        data-validate="required" placeholder="••••••••">
+                    <p data-error class="error-text {{ $errors->has('password') ? '' : 'hidden' }}">
+                        {{ $errors->first('password') }}</p>
                 </div>
 
                 <label class="flex items-center gap-2 text-sm text-gray-500 mb-5 mt-3">
-                    <input type="checkbox" name="remember" class="rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+                    <input type="checkbox" name="remember"
+                        class="rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                     Keep me signed in
                 </label>
 
@@ -56,4 +73,5 @@
         </p>
     </div>
 </body>
+
 </html>

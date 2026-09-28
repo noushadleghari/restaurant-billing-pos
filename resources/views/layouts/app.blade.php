@@ -143,7 +143,7 @@
             @if (session('success'))
                 <div data-flash
                     class="fixed top-5 right-5 z-[100] bg-brand-600 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
-                    <span>✅ {{ session('success') }}</span>
+                    <span> {{ session('success') }}</span>
                     <button data-flash-close class="opacity-80 hover:opacity-100">✕</button>
                 </div>
             @endif

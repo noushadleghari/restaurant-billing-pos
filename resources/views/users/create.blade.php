@@ -13,11 +13,7 @@
         Add User
     </h1>
 
-    <form
-        method="POST"
-        action="{{ route('users.store') }}"
-        class="card p-5 space-y-4"
-    >
+    <form method="POST" action="{{ route('users.store') }}" class="card p-5 space-y-4">
         @csrf
 
         @include('users.partials._form')

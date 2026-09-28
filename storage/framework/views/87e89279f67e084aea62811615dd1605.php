@@ -17,7 +17,7 @@
 
     <div class="max-w-sm mx-auto no-print flex justify-center gap-2 mb-4">
 
-        <a href="<?php echo e(route('tables.index')); ?>" class="btn-secondary">
+        <a href="<?php echo e(route('orders.pos')); ?>" class="btn-secondary">
             ← Back
         </a>
 

@@ -1,14 +1,7 @@
 <div>
     <label for="name" class="label">Name</label>
 
-    <input
-        type="text"
-        name="name"
-        id="name"
-        class="input"
-        value="{{ old('name', $user->name ?? '') }}"
-        placeholder="Enter user name"
-    >
+    <input type="text" name="name" id="name" class="input" value="{{ old('name', $user->name ?? '') }}" placeholder="Enter user name">
 
     @error('name')
         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
@@ -18,14 +11,9 @@
 <div>
     <label for="email" class="label">Email<sup style="color: red">*</sup></label>
 
-    <input
-        type="email"
-        name="email"
-        id="email"
-        class="input"
+    <input type="email" name="email" id="email" class="input"
         value="{{ old('email', $user->email ?? '') }}"
-        placeholder="user@example.com"
-    >
+        placeholder="user@example.com">
 
     @error('email')
         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
