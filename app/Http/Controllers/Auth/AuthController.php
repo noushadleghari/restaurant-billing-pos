@@ -34,7 +34,7 @@ class AuthController extends Controller
                 return redirect()->back()->with('error', 'Your account has been disabled. Contact admin.');
             }
 
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('dashboard'))->with('success','Logged in successfully.');
         }
 
         return redirect()->back()->with('error', 'Invalid Credentials!')->onlyInput('email');

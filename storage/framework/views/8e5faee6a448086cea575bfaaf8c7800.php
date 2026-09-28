@@ -48,13 +48,24 @@
                 <?php $__empty_1 = true; $__currentLoopData = $recentOrders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <div class="flex items-center justify-between py-3">
                         <div>
-                            <p class="text-sm font-semibold text-gray-800"><?php echo e($order->order_number); ?></p>
+                            <p class="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                                <?php echo e($order->order_number); ?>
+
+                                <?php if($order->status === 'refunded'): ?>
+                                    <span class="badge-red !py-0.5">Refunded</span>
+                                <?php endif; ?>
+                            </p>
                             <p class="text-xs text-gray-400">
                                 <?php echo e($order->diningTable?->name ?? 'Takeaway'); ?> · <?php echo e($order->completed_at?->diffForHumans()); ?>
 
                             </p>
                         </div>
-                        <p class="font-bold text-gray-800"><?php echo e(\App\Models\Setting::get('currency_symbol', '$')); ?><?php echo e(number_format($order->total, 2)); ?></p>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-800"><?php echo e(\App\Models\Setting::get('currency_symbol', '$')); ?><?php echo e(number_format($order->net_total, 2)); ?></p>
+                            <?php if($order->status === 'refunded'): ?>
+                                <p class="text-xxs text-red-500">-<?php echo e(\App\Models\Setting::get('currency_symbol', '$')); ?><?php echo e(number_format($order->refund_amount, 2)); ?> refunded</p>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                     <p class="text-sm text-gray-400 py-8 text-center">No completed orders yet today.</p>

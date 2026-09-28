@@ -17,7 +17,7 @@ class StoreOrderRequest extends FormRequest
             'dining_table_id' => ['nullable', 'exists:dining_tables,id'],
             'customer_id' => ['nullable', 'exists:customers,id'],
             'order_type' => ['required', 'in:dine_in,takeaway'],
-            'discount' => ['nullable', 'numeric', 'min:0'],
+            'discount' => ['nullable', 'numeric', 'min:0','max:100'],
             'tax_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'note' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],

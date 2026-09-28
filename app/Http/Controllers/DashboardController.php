@@ -19,7 +19,7 @@ class DashboardController extends Controller
         $yesterdaySummary = $reports->summary($yesterday->copy()->startOfDay(), $yesterday->copy()->endOfDay());
 
         $recentOrders = Order::with(['diningTable', 'cashier'])
-            ->completed()
+            ->completedOrRefunded()
             ->latest('completed_at')
             ->limit(8)
             ->get();

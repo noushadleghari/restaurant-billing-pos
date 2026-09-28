@@ -48,12 +48,22 @@
                 @forelse($recentOrders as $order)
                     <div class="flex items-center justify-between py-3">
                         <div>
-                            <p class="text-sm font-semibold text-gray-800">{{ $order->order_number }}</p>
+                            <p class="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                                {{ $order->order_number }}
+                                @if($order->status === 'refunded')
+                                    <span class="badge-red !py-0.5">Refunded</span>
+                                @endif
+                            </p>
                             <p class="text-xs text-gray-400">
                                 {{ $order->diningTable?->name ?? 'Takeaway' }} · {{ $order->completed_at?->diffForHumans() }}
                             </p>
                         </div>
-                        <p class="font-bold text-gray-800">{{ \App\Models\Setting::get('currency_symbol', '$') }}{{ number_format($order->total, 2) }}</p>
+                        <div class="text-right">
+                            <p class="font-bold text-gray-800">{{ \App\Models\Setting::get('currency_symbol', '$') }}{{ number_format($order->net_total, 2) }}</p>
+                            @if($order->status === 'refunded')
+                                <p class="text-xxs text-red-500">-{{ \App\Models\Setting::get('currency_symbol', '$') }}{{ number_format($order->refund_amount, 2) }} refunded</p>
+                            @endif
+                        </div>
                     </div>
                 @empty
                     <p class="text-sm text-gray-400 py-8 text-center">No completed orders yet today.</p>

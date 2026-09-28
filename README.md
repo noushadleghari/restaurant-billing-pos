@@ -136,6 +136,25 @@ Visit **http://localhost:8000**
 For quick counter sales, open **Billing** directly from the sidebar (no table
 needed) and check out immediately.
 
+## Cancel & Refund
+
+Two separate, deliberately short flows, available from **Order History** and
+(for completed orders) the **Receipt** page:
+
+- **Cancel** — for an order that's still **open/held** and hasn't been paid.
+  Any staff member can cancel it. Asks only for an optional reason, frees the
+  table, and marks the order `cancelled`. Nothing was ever counted as a sale,
+  so reports are unaffected.
+- **Refund** — for an already **completed/paid** order. Restricted to admins
+  (same trust level as deleting an order/product). Asks for a refund amount
+  (defaults to the full total, editable for a partial refund) and an optional
+  reason. The order is marked `refunded`; its original total is kept as the
+  historical record, and the refunded amount is netted off Sales, Avg Order
+  Value, and the sales trend chart everywhere in Reports and the Dashboard.
+
+Both abilities live in `app/Policies/OrderPolicy.php` (`cancel` / `refund`)
+if you want to change who's allowed to do what.
+
 ## Notes for Future Enhancement
 
 - `OrderService`, `ProductService`, `ReportService` and `SettingService`

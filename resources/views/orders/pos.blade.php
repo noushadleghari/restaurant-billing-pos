@@ -79,7 +79,7 @@
             <div class="p-4 border-t border-gray-100 space-y-3">
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-xs text-gray-400">Discount</label>
+                        <label class="text-xs text-gray-400">Discount %</label>
                         <input type="text" id="discount-input" value="{{ $activeOrder->discount ?? 0 }}"
                             class="input !py-2 !text-sm" inputmode="decimal">
                     </div>

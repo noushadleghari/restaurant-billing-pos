@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CheckoutOrderRequest;
+use App\Http\Requests\RefundOrderRequest;
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\Category;
 use App\Models\DiningTable;
@@ -88,10 +89,47 @@ class OrderController extends Controller
         ]);
     }
 
-    public function cancel(Order $order)
+    /**
+     * Cancel an order that hasn't been paid yet (still "open"/held on a table).
+     * Reason is optional — kept as a short, no-friction flow.
+     */
+    public function cancel(Request $request, Order $order)
     {
-        $this->orderService->cancel($order);
-        return response()->json(['success' => true]);
+        $this->authorize('cancel', $order);
+
+        $request->validate([
+            'reason' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        try {
+            $order = $this->orderService->cancelOrder($order, $request->reason);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['success' => true, 'order' => $order, 'message' => 'Order cancelled.']);
+    }
+
+    /**
+     * Refund an already-paid order, in full or in part. Reduces what that
+     * order counts toward sales/reports without touching the original bill.
+     */
+    public function refund(RefundOrderRequest $request, Order $order)
+    {
+        $this->authorize('refund', $order);
+
+        try {
+            $order = $this->orderService->refundOrder($order, (float) $request->refund_amount, $request->reason);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'order' => $order,
+            'message' => 'Refund processed.',
+            'receipt_url' => route('orders.receipt', $order),
+        ]);
     }
 
     public function receipt(Order $order)

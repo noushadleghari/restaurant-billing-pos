@@ -10,6 +10,7 @@ import { initTableGrid, initTableManage } from './modules/tables.js';
 import { initPOS } from './modules/pos.js';
 import { initReportsChart } from './modules/reports.js';
 import { initSettingsForm } from './modules/settings.js';
+import { initOrderActions } from './modules/orderActions.js';
 
 $(function () {
     setupAjaxDefaults($);
@@ -30,4 +31,5 @@ $(function () {
     initPOS($);
     initReportsChart($);
     initSettingsForm($);
+    initOrderActions($);
 });

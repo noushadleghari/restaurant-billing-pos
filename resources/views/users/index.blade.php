@@ -2,7 +2,7 @@
 @section('title', 'Users')
 
 @section('content')
-<div class="p-4 lg:p-8 max-w-5xl mx-auto">
+<div class="p-4 lg:p-8 max-w-6xl">
 
     <div class="flex items-center justify-between mb-6">
         <div>

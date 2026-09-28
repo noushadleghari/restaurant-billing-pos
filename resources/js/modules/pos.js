@@ -7,7 +7,7 @@ import { toast } from './flash.js';
  * takeaway orders from the same screen.
  */
 export function initPOS($) {
-    const $screen = $('#pos-screen');
+    const $screen =$('#pos-screen');
     if (!$screen.length) return;
 
     const currency = window.posConfig.currencySymbol || '$';
@@ -19,16 +19,24 @@ export function initPOS($) {
 
     function calcTotals() {
         const subtotal = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
-        const discount = parseFloat($('#discount-input').val()) || 0;
-        const taxPercent = parseFloat($('#tax-input').val()) || 0;
-        const taxable = Math.max(subtotal - discount, 0);
+        
+        // Discount is treated as a percentage (0% - 100%)
+        let discountPercent = parseFloat($('#discount-input').val()) || 0;
+        discountPercent = Math.max(0, Math.min(100, discountPercent));
+        
+        // Calculate the actual money discounted
+        const discountAmount = +(subtotal * (discountPercent / 100)).toFixed(2);
+        
+        const taxPercent = Math.max(0, parseFloat($('#tax-input').val()) || 0);
+        const taxable = Math.max(subtotal - discountAmount, 0);
         const taxAmount = +(taxable * (taxPercent / 100)).toFixed(2);
         const total = +(taxable + taxAmount).toFixed(2);
-        return { subtotal, discount, taxPercent, taxAmount, total };
+        
+        return { subtotal, discountPercent, discountAmount, taxPercent, taxAmount, total };
     }
 
     function renderCart() {
-        const $body = $('#cart-items');
+        const $body =$('#cart-items');
         $body.empty();
 
         if (cart.length === 0) {
@@ -55,6 +63,9 @@ export function initPOS($) {
 
         const t = calcTotals();
         $('#sum-subtotal').text(fmt(t.subtotal));
+        if ($('#sum-discount').length) {
+            $('#sum-discount').text(`-${fmt(t.discountAmount)}`);
+        }
         $('#sum-tax').text(fmt(t.taxAmount));
         $('#sum-total').text(fmt(t.total));
         $('#cart-count-badge').text(cart.reduce((s, i) => s + i.quantity, 0));
@@ -64,12 +75,10 @@ export function initPOS($) {
         const hasTable = !!$('#table-select').val();
 
         $('#checkout-btn').prop('disabled', cartEmpty);
-
         $('#save-order-btn').prop(
             'disabled',
             cartEmpty || !isDineIn || !hasTable
         );
-
     }
 
     function addToCart(product) {
@@ -84,7 +93,7 @@ export function initPOS($) {
 
     // --- Product grid interactions -----------------------------------------
     $screen.on('click', '[data-add-product]', function () {
-        const $tile = $(this);
+        const $tile =$(this);
         addToCart({
             id: $tile.data('id'),
             name: $tile.data('name'),
@@ -96,12 +105,14 @@ export function initPOS($) {
         cart[$(this).data('qty-inc')].quantity += 1;
         renderCart();
     });
+
     $screen.on('click', '[data-qty-dec]', function () {
         const idx = $(this).data('qty-dec');
         cart[idx].quantity -= 1;
         if (cart[idx].quantity <= 0) cart.splice(idx, 1);
         renderCart();
     });
+
     $screen.on('change', '[data-qty-input]', function () {
         const idx = $(this).data('qty-input');
         let val = parseInt($(this).val(), 10);
@@ -109,13 +120,15 @@ export function initPOS($) {
         cart[idx].quantity = val;
         renderCart();
     });
+
     $screen.on('click', '[data-remove-item]', function () {
         cart.splice($(this).data('remove-item'), 1);
         renderCart();
     });
 
     $('#discount-input, #tax-input').on('input', renderCart);
-    // Restrict to numbers only, in real time
+
+    // Restrict to numbers and decimal points only, in real time
     $('#discount-input, #tax-input').on('keypress', function (e) {
         const char = String.fromCharCode(e.which);
         if (!/[0-9.]/.test(char)) e.preventDefault();
@@ -137,14 +150,13 @@ export function initPOS($) {
     });
 
     $('#pos-category-pills').on('click', '.category-pill', function () {
-        $('.category-pill').removeClass('active');
-        $(this).addClass('active');
+        $('.category-pill').removeClass('active');$(this).addClass('active');
         $('#pos-active-category').val($(this).data('category-id') || '');
         fetchProducts();
     });
 
     function renderProductGrid(products) {
-        const $grid = $('#pos-product-grid');
+        const $grid =$('#pos-product-grid');
         if (!products.length) {
             $grid.html('<div class="col-span-full text-center text-gray-400 text-sm py-10">No products found.</div>');
             return;
@@ -166,15 +178,15 @@ export function initPOS($) {
 
     // --- Table / order type selection --------------------------------------
     $('#order-type-select').on('change', function () {
-        const isDineIn = $(this).val() === 'dine_in';
-        $('#table-select-wrapper').toggleClass('hidden', !isDineIn);
+        const isDineIn = $(this).val() === 'dine_in';$('#table-select-wrapper').toggleClass('hidden', !isDineIn);
         $('#save-order-btn').toggleClass('hidden', !isDineIn);
-            renderCart();
-        });
+        renderCart();
+    });
 
-        $('#table-select').on('change', function () {
-            renderCart();
-        });
+    $('#table-select').on('change', function () {
+        renderCart();
+    });
+
     // --- Customer search (AJAX autocomplete) --------------------------------
     let custTimer;
     $('#customer-search-input').on('input', function () {
@@ -184,7 +196,7 @@ export function initPOS($) {
         custTimer = setTimeout(() => {
             $.ajax({ url: window.routes.customerSearch, data: { q }, dataType: 'json' })
                 .done((res) => {
-                    const $box = $('#customer-results');
+                    const $box =$('#customer-results');
                     if (!res.customers.length) {
                         $box.html('<div class="p-3 text-xs text-gray-400">No matches. You can still bill as a walk-in guest.</div>').removeClass('hidden');
                         return;
@@ -199,10 +211,7 @@ export function initPOS($) {
         }, 300);
     });
 
-    $(document).on('click', '[data-select-customer]', function () {
-        $('#customer_id').val($(this).data('select-customer'));
-        $('#customer-search-input').val($(this).data('name'));
-        $('#customer-results').addClass('hidden').empty();
+    $(document).on('click', '[data-select-customer]', function () {$('#customer_id').val($(this).data('select-customer'));$('#customer-search-input').val($(this).data('name'));$('#customer-results').addClass('hidden').empty();
     });
 
     // --- Save order (hold / send to table without payment) -----------------
@@ -212,8 +221,8 @@ export function initPOS($) {
             dining_table_id: $('#order-type-select').val() === 'dine_in' ? $('#table-select').val() : null,
             customer_id: $('#customer_id').val() || null,
             order_type: $('#order-type-select').val(),
-            discount: $('#discount-input').val() || 0,
-            tax_percent: $('#tax-input').val() || 0,
+            discount: parseFloat($('#discount-input').val()) || 0, // Sends raw percentage
+            tax_percent: parseFloat($('#tax-input').val()) || 0,
             note: $('#order-note').val(),
             items: cart.map((i) => ({ product_id: i.product_id, quantity: i.quantity, note: i.note || '' })),
         };
@@ -230,8 +239,14 @@ export function initPOS($) {
             return;
         }
 
+        const discount = parseFloat($('#discount-input').val()) || 0;
+        if (discount < 0 || discount > 100) {
+            toast($, 'Discount must be between 0\% and 100\%.', 'error');$('#discount-input').focus();
+            return;
+        }
+
         const payload = collectPayload();
-        const $btn = $(this).prop('disabled', true).text('Saving...');
+        const $btn =$(this).prop('disabled', true).text('Saving...');
 
         $.ajax({
             url: window.routes.orderSave,
@@ -257,11 +272,25 @@ export function initPOS($) {
     // --- Checkout modal ------------------------------------------------------
     $('#checkout-btn').on('click', function () {
         if (!cart.length) return;
+
+        const discount = parseFloat($('#discount-input').val()) || 0;
+
+        if (discount > 100) {
+            toast($, 'Discount percentage cannot be more than 100\%.', 'error');$('#discount-input').focus();
+            return;
+        }
+
+        if (discount < 0) {
+            toast($, 'Discount percentage cannot be negative.', 'error');$('#discount-input').focus();
+            return;
+        }
+
         const t = calcTotals();
         $('#modal-total').text(fmt(t.total));
         $('#paid-amount-input').val(t.total.toFixed(2)).trigger('input');
         $('#checkout-modal').removeClass('hidden');
     });
+
     $('#close-checkout-modal, #checkout-modal-backdrop').on('click', () => $('#checkout-modal').addClass('hidden'));
 
     $('#paid-amount-input').on('input', function () {
@@ -272,11 +301,11 @@ export function initPOS($) {
     });
 
     $('#confirm-checkout-btn').on('click', async function () {
-        const $btn = $(this).prop('disabled', true).text('Processing...');
+        const $btn =$(this).prop('disabled', true).text('Processing...');
         const payload = collectPayload();
 
         try {
-            // First ensure the order is saved (creates it if new), then charge it.
+            // Save order first
             const saveRes = await $.ajax({ url: window.routes.orderSave, method: 'POST', data: payload, dataType: 'json' });
             currentOrderId = saveRes.order.id;
 
@@ -286,13 +315,15 @@ export function initPOS($) {
             const checkoutRes = await $.ajax({
                 url: `/orders/${currentOrderId}/checkout`,
                 method: 'POST',
-                data: { payment_method: paymentMethod, paid_amount: paidAmount, discount: $('#discount-input').val(), tax_percent: $('#tax-input').val() },
+                data: {
+                    payment_method: paymentMethod,
+                    paid_amount: paidAmount,
+                    discount: parseFloat($('#discount-input').val()) || 0,
+                    tax_percent: parseFloat($('#tax-input').val()) || 0
+                },
                 dataType: 'json',
             });
 
-            // toast($, 'Payment received. Opening receipt...');
-            // window.open(checkoutRes.receipt_url);
-            // setTimeout(() => window.location.href = window.routes.tables, 700);
             window.location.href = checkoutRes.receipt_url;
         } catch (xhr) {
             toast($, xhr.responseJSON?.message || 'Checkout failed. Please try again.', 'error');

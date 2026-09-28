@@ -22,10 +22,11 @@
         </form>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="card p-5">
             <p class="text-xs text-gray-400 font-medium">Total Sales</p>
             <p class="text-2xl font-bold text-gray-800 mt-1">{{ \App\Models\Setting::get('currency_symbol','$') }}{{ number_format($summary['total_sales'], 2) }}</p>
+            <p class="text-xxs text-gray-400 mt-1">net of refunds</p>
         </div>
         <div class="card p-5">
             <p class="text-xs text-gray-400 font-medium">Orders</p>
@@ -38,6 +39,10 @@
         <div class="card p-5">
             <p class="text-xs text-gray-400 font-medium">Total Discounts</p>
             <p class="text-2xl font-bold text-gray-800 mt-1">{{ \App\Models\Setting::get('currency_symbol','$') }}{{ number_format($summary['total_discount'], 2) }}</p>
+        </div>
+        <div class="card p-5">
+            <p class="text-xs text-gray-400 font-medium">Total Refunds</p>
+            <p class="text-2xl font-bold text-red-600 mt-1">{{ \App\Models\Setting::get('currency_symbol','$') }}{{ number_format($summary['total_refunds'], 2) }}</p>
         </div>
     </div>
 

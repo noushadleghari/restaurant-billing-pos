@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/save', [OrderController::class, 'save'])->name('orders.save');
     Route::post('/orders/{order}/checkout', [OrderController::class, 'checkout'])->name('orders.checkout');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{order}/refund', [OrderController::class, 'refund'])->name('orders.refund');
     Route::get('/orders/{order}/receipt', [OrderController::class, 'receipt'])->name('orders.receipt');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::get('/orders', [OrderController::class, 'history'])->name('orders.history');

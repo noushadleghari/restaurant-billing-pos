@@ -16,6 +16,7 @@
             <option value="">All statuses</option>
             <option value="open" @selected(request('status')==='open')>Open / Held</option>
             <option value="completed" @selected(request('status')==='completed')>Completed</option>
+            <option value="refunded" @selected(request('status')==='refunded')>Refunded</option>
             <option value="cancelled" @selected(request('status')==='cancelled')>Cancelled</option>
         </select>
         <input type="date" name="date" value="{{ request('date') }}" class="input max-w-[160px]" onchange="this.form.submit()">
@@ -42,17 +43,33 @@
                         <td class="px-5 py-3 text-gray-500">{{ $order->diningTable?->name ?? 'Takeaway' }}</td>
                         <td class="px-5 py-3 text-gray-500">{{ $order->cashier?->name ?? '-' }}</td>
                         <td class="px-5 py-3">
-                            <span class="{{ match($order->status) { 'completed' => 'badge-green', 'open' => 'badge-amber', default => 'badge-gray' } }}">
+                            <span class="{{ match($order->status) { 'completed' => 'badge-green', 'open' => 'badge-amber', 'refunded' => 'badge-red', default => 'badge-gray' } }}"
+                                  @if($order->status === 'cancelled' && $order->cancel_reason) title="{{ $order->cancel_reason }}" @endif
+                                  @if($order->status === 'refunded' && $order->refund_reason) title="{{ $order->refund_reason }}" @endif>
                                 {{ ucfirst($order->status) }}
                             </span>
                         </td>
-                        <td class="px-5 py-3 font-semibold text-gray-800">{{ \App\Models\Setting::get('currency_symbol','$') }}{{ number_format($order->total, 2) }}</td>
+                        <td class="px-5 py-3">
+                            <p class="font-semibold text-gray-800">{{ \App\Models\Setting::get('currency_symbol','$') }}{{ number_format($order->net_total, 2) }}</p>
+                            @if($order->status === 'refunded')
+                                <p class="text-xxs text-red-500">-{{ \App\Models\Setting::get('currency_symbol','$') }}{{ number_format($order->refund_amount, 2) }} refunded</p>
+                            @endif
+                        </td>
                         <td class="px-5 py-3 text-gray-400">{{ $order->created_at->format('d M, h:i A') }}</td>
-                        <td class="px-5 py-3 text-right">
+                        <td class="px-5 py-3 text-right space-x-3 whitespace-nowrap">
                             @if($order->status === 'completed')
                                 <a href="{{ route('orders.receipt', $order) }}" target="_blank" class="text-brand-600 hover:underline text-xs font-medium">Receipt</a>
+                                @can('refund', $order)
+                                    <button type="button" data-refund-order="{{ $order->id }}" data-total="{{ $order->total }}"
+                                            class="text-red-500 hover:underline text-xs font-medium">Refund</button>
+                                @endcan
                             @elseif($order->status === 'open')
                                 <a href="{{ route('orders.pos', ['table' => $order->dining_table_id]) }}" class="text-brand-600 hover:underline text-xs font-medium">Continue</a>
+                                @can('cancel', $order)
+                                    <button type="button" data-cancel-order="{{ $order->id }}" class="text-red-500 hover:underline text-xs font-medium">Cancel</button>
+                                @endcan
+                            @elseif($order->status === 'refunded')
+                                <a href="{{ route('orders.receipt', $order) }}" target="_blank" class="text-brand-600 hover:underline text-xs font-medium">Receipt</a>
                             @endif
                         </td>
                     </tr>
@@ -64,4 +81,7 @@
     </div>
     <div class="mt-4">{{ $orders->links() }}</div>
 </div>
+
+@include('orders.partials._cancel_modal')
+@include('orders.partials._refund_modal')
 @endsection
