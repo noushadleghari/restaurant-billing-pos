@@ -2,90 +2,63 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
+use App\Services\UserService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+use RuntimeException;
 
 class UserController extends Controller
 {
-    public function index()
+    public function __construct(
+        private readonly UserService $userService
+    ) {}
+
+    public function index(): View
     {
         $users = User::latest()->paginate(10);
-
         return view('users.index', compact('users'));
     }
 
-    public function create()
+    public function create(): View
     {
         return view('users.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'role' => ['required', Rule::in(['admin', 'cashier'])],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        $data = $request->validated();
+        $data['is_active'] = $request->boolean('is_active');
+        $this->userService->create($data);
 
-        $validated['password'] = Hash::make($validated['password']);
-        $validated['is_active'] = $request->boolean('is_active');
-
-        User::create($validated);
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User created successfully.');
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
-    public function edit(User $user)
+    public function edit(User $user): View
     {
         return view('users.edit', compact('user'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($user->id),
-            ],
-            'role' => ['required', Rule::in(['admin', 'cashier'])],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
+        $data = $request->validated();
+        $data['is_active'] = $request->boolean('is_active');
+        $this->userService->update($data, $user);
 
-        if (!empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
-        }
-
-        $validated['is_active'] = $request->boolean('is_active');
-
-        $user->update($validated);
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User updated successfully.');
+        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
-    public function destroy(User $user)
+    public function destroy(User $user): RedirectResponse
     {
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot delete your own account.');
+        try {
+
+            $this->userService->delete($user, Auth::id());
+            return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        } catch (RuntimeException $e) {
+            return redirect()->route('users.index')->with('error', $e->getMessage());
         }
-
-        $user->delete();
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'User deleted successfully.');
     }
 }

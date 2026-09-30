@@ -15,8 +15,7 @@
 <body class="h-full">
     <div class="min-h-screen flex">
         {{-- Sidebar --}}
-        <aside class="w-55 shrink-0 bg-white border-r border-gray-200 flex-col hidden lg:flex">
-            <div class="h-16 flex items-center gap-2 px-5 border-b border-gray-100">
+<aside class="hidden lg:flex w-[220px] h-screen shrink-0 flex-col bg-white border-r border-gray-200">            <div class="h-16 flex items-center gap-2 px-5 border-b border-gray-100">
                 <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white font-bold">☕
                 </div>
                 <span
@@ -121,8 +120,7 @@
         </div>
 
         {{-- Main content --}}
-        <main class="flex-1 min-w-0 pt-14 lg:pt-0">
-            @if (session('success'))
+<main class="flex-1 min-w-0 h-screen overflow-y-auto pt-14 lg:pt-0">            @if (session('success'))
                 <div data-flash
                     class="fixed top-5 right-5 z-[100] bg-brand-600 text-white text-sm font-medium px-4 py-3 rounded-xl shadow-lg flex items-center gap-3">
                     <span>✅ {{ session('success') }}</span>

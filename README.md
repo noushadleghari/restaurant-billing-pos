@@ -143,6 +143,3 @@ needed) and check out immediately.
   points, multiple branches, ingredient-level inventory, etc.) belong there.
 - All AJAX endpoints return JSON consistently (`{success, message, data}`)
   so new frontend behavior can hook in without backend changes.
-- Roles (`admin` / `cashier`) already exist on `users` — add route
-  middleware/policies if you want to restrict e.g. Settings or Reports to
-  admins only.
