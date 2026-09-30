@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateSettingRequest;
 use App\Services\SettingService;
+use Illuminate\Support\Facades\Gate;
 
 class SettingController extends Controller
 {
