@@ -76,12 +76,35 @@ export function initValidation($, formSelector) {
         }
     });
 
-    // Also block non-numeric keystrokes on any [data-numeric-only] input in real time.
-    $form.find('[data-numeric-only]').on('keypress', function (e) {
-        const char = String.fromCharCode(e.which);
-        const allowDecimal = $(this).attr('data-numeric-only') === 'decimal';
-        const pattern = allowDecimal ? /[0-9.]/ : /[0-9]/;
-        if (!pattern.test(char)) e.preventDefault();
+    // Block non-numeric input in real time on any [data-numeric-only] field —
+    // both the keystroke itself (snappy feel) AND the resulting value (catches
+    // paste, autofill, and mobile keyboards that don't fire normal keypresses).
+    $form.find('[data-numeric-only]').each(function () {
+        const $input = $(this);
+        const allowDecimal = $input.attr('data-numeric-only') === 'decimal';
+        const keyPattern = allowDecimal ? /[0-9.]/ : /[0-9]/;
+        const stripPattern = allowDecimal ? /[^0-9.]/g : /[^0-9]/g;
+
+        $input.on('keypress', function (e) {
+            const char = String.fromCharCode(e.which);
+            if (!keyPattern.test(char)) e.preventDefault();
+        });
+
+        $input.on('input', function () {
+            let value = $input.val().replace(stripPattern, '');
+            if (allowDecimal) {
+                // Keep only the first decimal point if more than one was pasted in.
+                const firstDot = value.indexOf('.');
+                if (firstDot !== -1) {
+                    value = value.slice(0, firstDot + 1) + value.slice(firstDot + 1).replace(/\./g, '');
+                }
+            }
+            if (value !== $input.val()) $input.val(value);
+        });
+
+        $input.on('paste', function () {
+            setTimeout(() => $input.trigger('input'), 0);
+        });
     });
 }
 

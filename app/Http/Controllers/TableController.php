@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTableRequest;
+use App\Http\Requests\UpdateTableRequest;
 use App\Models\DiningTable;
 use Illuminate\Http\Request;
 
@@ -35,23 +36,41 @@ class TableController extends Controller
 
     public function store(StoreTableRequest $request)
     {
-        DiningTable::create($request->validated());
+        $table = DiningTable::create($request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'table' => $table, 'message' => 'Table added.']);
+        }
+
         return back()->with('success', 'Table added.');
     }
 
-    public function update(StoreTableRequest $request, DiningTable $table)
+    public function update(UpdateTableRequest $request, DiningTable $table)
     {
         $table->update($request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'table' => $table, 'message' => 'Table updated.']);
+        }
+
         return back()->with('success', 'Table updated.');
     }
 
-    public function destroy(DiningTable $table)
+    public function destroy(Request $request, DiningTable $table)
     {
         if ($table->status === 'occupied') {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Cannot remove an occupied table.'], 422);
+            }
             return back()->with('error', 'Cannot remove an occupied table.');
         }
 
         $table->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Table removed.']);
+        }
+
         return back()->with('success', 'Table removed.');
     }
 }

@@ -1,4 +1,5 @@
 import { toast } from './flash.js';
+import { renderServerErrors } from './validate.js';
 
 // The tile-grid table system on /tables (search + status refresh).
 export function initTableGrid($) {
@@ -21,27 +22,85 @@ export function initTableGrid($) {
     });
 }
 
-// The admin "Manage Tables" CRUD screen.
+// The admin "Manage Tables" CRUD screen — fully AJAX: add/edit/delete all
+// show a toast on success or failure, and server-side validation errors are
+// rendered on the same fields the real-time validation uses.
 export function initTableManage($) {
     const $form = $('#table-form');
     if (!$form.length) return;
 
-    $('#add-table-btn').on('click', () => $('#table-modal').removeClass('hidden'));
-    $('#close-table-modal, #table-modal-backdrop').on('click', () => $('#table-modal').addClass('hidden'));
+    const $modal = $('#table-modal');
+
+    function clearFormErrors() {
+        $form.find('.input-error').removeClass('input-error');
+        $form.find('[data-error]').addClass('hidden').text('');
+    }
+
+    function openModal(title, action, method, values = { name: '', capacity: '' }) {
+        clearFormErrors();
+        $form.attr('action', action);
+        $form.find('[name=_method]').val(method);
+        $('#table-modal-title').text(title);
+        $('#table-name').val(values.name);
+        $('#table-capacity').val(values.capacity);
+        $modal.removeClass('hidden');
+    }
+
+    $('#add-table-btn').on('click', function () {
+        openModal('Add Table', window.routes.tablesStore, 'POST');
+    });
+
+    $('#close-table-modal, #table-modal-backdrop').on('click', () => $modal.addClass('hidden'));
 
     $(document).on('click', '[data-edit-table]', function () {
         const data = $(this).data();
-        $('#table-form').attr('action', `/tables/${data.editTable}`);
-        $('#table-form input[name=_method]').val('PUT');
-        $('#table-name').val(data.name);
-        $('#table-capacity').val(data.capacity);
-        $('#table-modal-title').text('Edit Table');
-        $('#table-modal').removeClass('hidden');
+        openModal('Edit Table', `/tables/${data.editTable}`, 'PUT', { name: data.name, capacity: data.capacity });
+    });
+
+    $form.on('submit', function (e) {
+        e.preventDefault();
+        if ($form.find('.input-error').length) return; // client-side validation already stopped it
+
+        const $submitBtn = $form.find('[type="submit"]').prop('disabled', true).text('Saving...');
+
+        $.ajax({
+            url: $form.attr('action'),
+            method: 'POST', // Laravel reads the spoofed _method field for PUT
+            data: $form.serialize(),
+            dataType: 'json',
+        })
+            .done(function (res) {
+                toast($, res.message || 'Table saved.');
+                $modal.addClass('hidden');
+                setTimeout(() => window.location.reload(), 500);
+            })
+            .fail(function (xhr) {
+                if (xhr.status === 422) {
+                    renderServerErrors($, '#table-form', xhr.responseJSON.errors);
+                    toast($, 'Please fix the highlighted fields.', 'error');
+                } else {
+                    toast($, xhr.responseJSON?.message || 'Could not save this table. Please try again.', 'error');
+                }
+            })
+            .always(function () {
+                $submitBtn.prop('disabled', false).text('Save');
+            });
     });
 
     $(document).on('click', '[data-delete-table]', function (e) {
         e.preventDefault();
         if (!confirm('Remove this table?')) return;
-        $(this).closest('form').trigger('submit');
+
+        const $row = $(this).closest('tr');
+        const action = $(this).closest('form').attr('action');
+
+        $.ajax({ url: action, method: 'POST', data: { _method: 'DELETE' }, dataType: 'json' })
+            .done(function (res) {
+                toast($, res.message || 'Table removed.');
+                $row.fadeOut(200, () => $row.remove());
+            })
+            .fail(function (xhr) {
+                toast($, xhr.responseJSON?.message || 'Could not remove this table.', 'error');
+            });
     });
 }

@@ -21,6 +21,7 @@ $(function () {
     initValidation($, '#customer-form');
     initValidation($, '#login-form');
     initValidation($, '#settings-form');
+    initValidation($, '#table-form');
 
     // Feature-detect which page we're on and boot only what's needed.
     initProductForm($);

@@ -1,11 +1,10 @@
-@extends('layouts.app')
-@section('title', 'Manage Tables')
+<?php $__env->startSection('title', 'Manage Tables'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="p-4 lg:p-8 max-w-6xl">
     <div class="flex items-center justify-between mb-6">
         <div>
-            <a href="{{ route('tables.index') }}" class="text-sm text-gray-400 hover:text-gray-600">← Back to Tables</a>
+            <a href="<?php echo e(route('tables.index')); ?>" class="text-sm text-gray-400 hover:text-gray-600">← Back to Tables</a>
             <h1 class="text-2xl font-bold text-gray-800 mt-1">Manage Tables</h1>
         </div>
         <button id="add-table-btn" class="btn-primary">+ Add Table</button>
@@ -22,36 +21,36 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-                @foreach($tables as $table)
+                <?php $__currentLoopData = $tables; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $table): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     <tr>
-                        <td class="px-5 py-3 font-medium text-gray-800">{{ $table->name }}</td>
-                        <td class="px-5 py-3 text-gray-500">{{ $table->capacity }} seats</td>
+                        <td class="px-5 py-3 font-medium text-gray-800"><?php echo e($table->name); ?></td>
+                        <td class="px-5 py-3 text-gray-500"><?php echo e($table->capacity); ?> seats</td>
                         <td class="px-5 py-3">
-                            <span class="{{ $table->status === 'occupied' ? 'badge-red' : 'badge-green' }}">{{ ucfirst($table->status) }}</span>
+                            <span class="<?php echo e($table->status === 'occupied' ? 'badge-red' : 'badge-green'); ?>"><?php echo e(ucfirst($table->status)); ?></span>
                         </td>
                         <td class="px-5 py-3 text-right space-x-3">
-                            <button type="button" data-edit-table="{{ $table->id }}" data-name="{{ $table->name }}" data-capacity="{{ $table->capacity }}"
+                            <button type="button" data-edit-table="<?php echo e($table->id); ?>" data-name="<?php echo e($table->name); ?>" data-capacity="<?php echo e($table->capacity); ?>"
                                     class="text-brand-600 hover:underline text-xs font-medium">Edit</button>
-                            <form method="POST" action="{{ route('tables.destroy', $table) }}" class="inline">
-                                @csrf @method('DELETE')
+                            <form method="POST" action="<?php echo e(route('tables.destroy', $table)); ?>" class="inline">
+                                <?php echo csrf_field(); ?> <?php echo method_field('DELETE'); ?>
                                 <button type="button" data-delete-table class="text-red-500 hover:underline text-xs font-medium">Delete</button>
                             </form>
                         </td>
                     </tr>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
     </div>
-    <div class="mt-4">{{ $tables->links() }}</div>
+    <div class="mt-4"><?php echo e($tables->links()); ?></div>
 </div>
 
-{{-- Add/Edit table modal --}}
+
 <div id="table-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
     <div id="table-modal-backdrop" class="absolute inset-0 bg-black/40"></div>
     <div class="card relative w-full max-w-sm p-6">
         <h3 id="table-modal-title" class="font-bold text-gray-800 mb-4">Add Table</h3>
-        <form id="table-form" method="POST" action="{{ route('tables.store') }}" novalidate>
-            @csrf
+        <form id="table-form" method="POST" action="<?php echo e(route('tables.store')); ?>" novalidate>
+            <?php echo csrf_field(); ?>
             <input type="hidden" name="_method" value="POST">
 
             <div class="mb-4" data-field>
@@ -75,7 +74,8 @@
 
 <script>
     window.routes = {
-        tablesStore: @json(route('tables.store')),
+        tablesStore: <?php echo json_encode(route('tables.store'), 15, 512) ?>,
     };
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /home/noshad/Desktop/Laravel-projects/pos-system/resources/views/tables/manage.blade.php ENDPATH**/ ?>
